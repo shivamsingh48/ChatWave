@@ -3,6 +3,8 @@ import victory from "@/assets/victory.svg"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/hooks/use-toast"
 import { useState } from "react"
 
 function Auth() {
@@ -10,13 +12,29 @@ function Auth() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    const {toast}=useToast();
+
+
+    const validateSignup=()=>{
+        if(!email.length){
+            toast({
+                variant: "destructive",
+                title: "Email is required",
+                action: <ToastAction altText="Try again">Try again</ToastAction>,
+              })
+            return false;
+        }
+        return true;
+    }
 
     const handleLogin = async () => {
 
     }
 
     const handleSignUp = async () => {
-
+        if(validateSignup()){
+            alert("done");
+        }
     }
 
     return (
