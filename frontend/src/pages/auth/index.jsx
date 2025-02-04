@@ -3,37 +3,81 @@ import victory from "@/assets/victory.svg"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
+import { apiClient } from "@/lib/api.client"
+import { useAppStore } from "@/store"
+import { LOGIN_ROUTE, SIGNUP_ROUTE } from "@/utils/contanst"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 function Auth() {
+
+    const navigate=useNavigate()
+    const {setUserInfo}=useAppStore()
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const {toast}=useToast();
 
+    const validateLogin=()=>{
+        if(!email.length){
+            toast({
+                title: "Email is required",
+              })
+            return false;
+        }
+        if(!password.length){
+            toast({
+                title: "Password is required",
+            })
+            return false;
+        }
+        return true;
+    }
 
     const validateSignup=()=>{
         if(!email.length){
             toast({
-                variant: "destructive",
                 title: "Email is required",
-                action: <ToastAction altText="Try again">Try again</ToastAction>,
               })
+            return false;
+        }
+        if(!password.length){
+            toast({
+                title: "Password is required",
+            })
+            return false;
+        }
+        if(password!==confirmPassword){
+            toast({
+                title: "Password and Confirm password should be same",
+            })
             return false;
         }
         return true;
     }
 
     const handleLogin = async () => {
-
+        if(validateLogin()){
+            const {data}=await apiClient.post(LOGIN_ROUTE,{email,password},{withCredentials:true})
+            if(data.success){
+                setUserInfo(data.user)
+                if(data.user.profileSetup){
+                    navigate('/chat')
+                }
+                else navigate('/profile')
+            }
+        }
     }
 
     const handleSignUp = async () => {
         if(validateSignup()){
-            alert("done");
+            const {data}=await apiClient.post(SIGNUP_ROUTE,{email,password},{withCredentials:true})
+            if(data.success){
+                setUserInfo(data.user)
+                navigate('/profile')
+            }
         }
     }
 
@@ -51,7 +95,7 @@ function Auth() {
                         </p>
                         </div>
                         <div className="flex itmes-center justify-center w-full">
-                            <Tabs className="w-3/4">
+                            <Tabs className="w-3/4" defaultValue="login">
                                 <TabsList className="bg-transparent rounded-none w-full ">
                                     <TabsTrigger value="login"
                                         className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-bold
