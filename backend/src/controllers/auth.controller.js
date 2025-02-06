@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {renameSync,unlinkSync} from 'fs'
 
 const signup=asyncHandler( async (req,res)=>{
     const {email,password}=req.body
@@ -145,7 +146,50 @@ const updateProfile=asyncHandler( async (req,res)=>{
 
 })
 
+const uploadAvatar=asyncHandler(async(req,res)=>{
+    if(!req.file){
+        return res.status(400).json({success:false,message:"file is required"});
+    }
+    const date=Date.now()
+    let fileName="upload/profiles/"+date+req.file.originalname;
+    
+    renameSync(req.file.path,fileName)
+
+    const updatedUser=await User.findByIdAndUpdate(req.user,{
+        avatar:fileName
+    },{
+        new:true,
+        runValidators:true
+    })
+    return res.status(200).json({
+        success:true,
+        avatar:updatedUser.avatar
+    })
+})
+
+const deleteAvatar=asyncHandler(async(req,res)=>{
+    
+    const userId=req.user
+    const user=await User.findById(userId)
+
+    if(!user){
+        return res.status(401).json({success:false,message:"User not found"})
+    }
+
+    if(user.avatar){
+        unlinkSync(user.avatar)
+    }
+
+    user.avatar=null;
+    user.save()
+
+
+    return res.status(200).json({
+        success:true,
+        message:"profile image removed successfully"
+    })
+})
 
 export {
-    signup,login,getUser,updateProfile
+    signup,login,getUser,updateProfile,uploadAvatar,deleteAvatar
 }
