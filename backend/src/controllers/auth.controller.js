@@ -190,6 +190,26 @@ const deleteAvatar=asyncHandler(async(req,res)=>{
     })
 })
 
+const logout=asyncHandler(async(req,res)=>{
+    
+    const userId=req.user
+    const user=await User.findById(userId)
+
+    console.log(user);
+    
+
+    if(!user){
+        return res.status(401).json({success:false,message:"User not found"})
+    }
+
+    return res.status(200)
+    .clearCookie("accessToken",{secure:true,sameSite:"None"})
+    .json({
+        success:true,
+        message:"logout successfull"
+    })
+})
+
 export {
-    signup,login,getUser,updateProfile,uploadAvatar,deleteAvatar
+    signup,login,getUser,updateProfile,uploadAvatar,deleteAvatar,logout
 }
