@@ -21,8 +21,10 @@ app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 
 import authRouter from './src/routes/auth.route.js'
+import { contactsRoute } from './src/routes/contacts.route.js';
 
 
 app.use('/api/v1/auth',authRouter)
+app.use('/api/v1/contacts',contactsRoute)
 
 export {app};

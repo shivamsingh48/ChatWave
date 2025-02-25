@@ -9,3 +9,5 @@ export const ADD_PROFILE_IMAGE_ROUTE=`${AUTH_ROUTES}/add-profile-avatar`
 export const DELETE_PROFILE_IMAGE_ROUTE=`${AUTH_ROUTES}/delete-profile-avatar`
 export const LOGOUT_ROUTE=`${AUTH_ROUTES}/logout`
 
+export const CONTACTS_ROUTES="api/v1/contacts"
+export const SEARCH_ROUTE=`${CONTACTS_ROUTES}/search`
