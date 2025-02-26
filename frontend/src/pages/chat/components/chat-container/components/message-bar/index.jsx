@@ -1,3 +1,5 @@
+import { useSocket } from "@/context/socketContext"
+import { useAppStore } from "@/store"
 import EmojiPicker from "emoji-picker-react"
 import { useEffect, useRef, useState } from "react"
 import { GrAttachment } from 'react-icons/gr'
@@ -6,6 +8,8 @@ import { RiEmojiStickerLine } from "react-icons/ri"
 
 function MessageBar() {
 
+  const {selectedChatType,selectedChatData,userInfo}=useAppStore()
+  const socket=useSocket()
   const emojiRef=useRef()
   const [message, setMessage] = useState("")
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
@@ -26,7 +30,18 @@ function MessageBar() {
     setMessage((msg)=>msg+emoji.emoji)
   }
 
-  const handleSendMessage=async()=>{}
+  const handleSendMessage=async()=>{
+    if(selectedChatType==="contact"){
+      console.log(selectedChatType)
+      socket.emit("sendMessage",{
+        sender:userInfo.id,
+        content:message,
+        recipient:selectedChatData._id,
+        messageType:"text",
+        fileUrl:undefined
+      })
+    }
+  }
 
   return (
     <div className="h-[10vh] bg-[#1c1d25] flex justify-center items-center px-8 mb-6 gap-6">
