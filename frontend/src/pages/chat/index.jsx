@@ -27,8 +27,6 @@ function Chat() {
       {
         selectedChatType===undefined? <EmptyChatContainer/>:<ChatContainer/>
       }
-      {/* <EmptyChatContainer/> */}
-      {/* <ChatContainer/> */}
     </div>
   )
 }

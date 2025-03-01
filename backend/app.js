@@ -22,9 +22,11 @@ app.use(cookieParser())
 
 import authRouter from './src/routes/auth.route.js'
 import { contactsRoute } from './src/routes/contacts.route.js';
+import { messagesRouter } from './src/routes/messages.routes.js';
 
 
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/contacts',contactsRoute)
+app.use('/api/v1/messages',messagesRouter)
 
 export {app};

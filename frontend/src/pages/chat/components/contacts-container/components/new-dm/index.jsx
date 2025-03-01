@@ -36,8 +36,6 @@ function NewDM() {
         try {
             if (searchTerm.length > 0) {
                 const { data } = await apiClient.post(SEARCH_ROUTE, { searchTerm }, { withCredentials: true })
-                console.log(data);
-
                 if (data.success) {
                     setSearchedContacts(data.contacts)
                 }

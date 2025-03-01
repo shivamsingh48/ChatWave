@@ -56,6 +56,6 @@ const setupSocket=(server)=>{
         socket.on("disconnect",()=>disconnect(socket))
     })
 }
-
+ 
 
 export default setupSocket

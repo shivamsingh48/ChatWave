@@ -1,5 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import {User} from '../models/user.model.js'
+import mongoose from "mongoose"
+import { Message } from "../models/messages.model.js"
 
 const searchContacts=asyncHandler(async(req,res)=>{
     
@@ -32,4 +34,64 @@ const searchContacts=asyncHandler(async(req,res)=>{
     })
 })
 
-export {searchContacts}
+const getContactsForDMList=asyncHandler(async(req,res)=>{
+    
+    let {user}=req
+    user=new mongoose.Types.ObjectId(user)
+ 
+    const contacts=await Message.aggregate([
+        {
+            $match:{
+                $or:[{sender:user},{recipient:user}]
+            }
+        },
+        {
+            $sort:{timestamp:-1}
+        },
+        {
+            $group:{
+                _id:{
+                    $cond:{
+                        if:{$eq:["$sender",user]},
+                        then:"$recipient",
+                        else:"$sender"
+                    }
+                },
+                lastMessageTime:{$first:"$timestamp"}
+            }
+        },
+        {
+            $lookup:{
+                from:"users",
+                localField:"_id",
+                foreignField:"_id",
+                as:"contactInfo"
+            }
+        },
+        {
+            $unwind:"$contactInfo"
+        },
+        {
+            $project:{
+                _id:1,
+                lastMessageTime:1,
+                email:"$contactInfo.email",
+                firstName:"$contactInfo.firstName",
+                lastName:"$contactInfo.lastName",
+                avatar:"$contactInfo.avatar",
+                color:"$conatctInfo.color",
+            }
+        },
+        {
+            $sort:{lastMessageTime:-1}
+        }
+    ])
+
+    return res.status(200)
+    .json({
+        success:true,
+        contacts
+    })
+})
+
+export {searchContacts,getContactsForDMList}

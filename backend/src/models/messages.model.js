@@ -27,7 +27,11 @@ const messageSchema=new Schema({
         required:function(){
             return this.messageType==="file"
         }
+    },
+    timestamp:{
+        type:Date,
+        default:Date.now
     }
-},{timestamps:true})
+})
 
 export const Message=mongoose.model("Message",messageSchema);
