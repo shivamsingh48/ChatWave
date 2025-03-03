@@ -1,5 +1,7 @@
 import { useSocket } from "@/context/socketContext"
+import { apiClient } from "@/lib/api.client"
 import { useAppStore } from "@/store"
+import { UPLOAD_FILE_route } from "@/utils/contanst"
 import EmojiPicker from "emoji-picker-react"
 import { useEffect, useRef, useState } from "react"
 import { GrAttachment } from 'react-icons/gr'
@@ -8,37 +10,77 @@ import { RiEmojiStickerLine } from "react-icons/ri"
 
 function MessageBar() {
 
-  const {selectedChatType,selectedChatData,userInfo}=useAppStore()
-  const socket=useSocket()
-  const emojiRef=useRef()
+  const { selectedChatType, selectedChatData, userInfo,setIsUploading,setFileUploadProgress} = useAppStore()
+  const socket = useSocket()
+  const emojiRef = useRef()
+  const fileInputRef = useRef()
   const [message, setMessage] = useState("")
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
 
-  useEffect(()=>{
-    function handleClickOutside(e){
-      if(emojiRef.current && !emojiRef.current.contains(e.target)){
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (emojiRef.current && !emojiRef.current.contains(e.target)) {
         setEmojiPickerOpen(false)
       }
     }
-    document.addEventListener("mousedown",handleClickOutside)
-    return ()=>{
-      document.removeEventListener("mousedown",handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
     }
-  },[emojiRef])
+  }, [emojiRef])
 
-  const handleAddEmoji=(emoji)=>{
-    setMessage((msg)=>msg+emoji.emoji)
+  const handleAddEmoji = (emoji) => {
+    setMessage((msg) => msg + emoji.emoji)
   }
 
-  const handleSendMessage=async()=>{
-    if(selectedChatType==="contact"){
-      socket.emit("sendMessage",{
-        sender:userInfo.id,
-        content:message,
-        recipient:selectedChatData._id,
-        messageType:"text",
-        fileUrl:undefined
+  const handleSendMessage = async () => {
+    if (selectedChatType === "contact") {
+      socket.emit("sendMessage", {
+        sender: userInfo.id,
+        content: message,
+        recipient: selectedChatData._id,
+        messageType: "text",
+        fileUrl: undefined
       })
+    }
+  }
+
+  const handleAttachmentClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleAttachmentChange = async (event) => {
+    try {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file)
+        setIsUploading(true)
+        const { data } = await apiClient.post(UPLOAD_FILE_route, formData, 
+          { withCredentials: true ,
+            onUploadProgress:(data)=>{
+              setFileUploadProgress(Math.round((100*data.loaded)/data.total))
+            }
+          },
+        )
+        if (data.success) {
+          if (selectedChatType === "contact") {
+            setIsUploading(false)
+            socket.emit("sendMessage", {
+              sender: userInfo.id,
+              content: undefined,
+              recipient: selectedChatData._id,
+              messageType: "file",
+              fileUrl: data.filePath
+            })
+          }
+        }
+      }
+    } catch (error) {
+      setIsUploading(false)
+      console.log(error)
     }
   }
 
@@ -53,31 +95,32 @@ function MessageBar() {
           value={message}
         />
         <button className='text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all'
-        // onClick={}
+          onClick={handleAttachmentClick}
         >
           <GrAttachment className="text-2xl" />
         </button>
+        <input type="file" className="hidden" ref={fileInputRef} onChange={handleAttachmentChange} />
         <div className="relative">
           <button className='text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all'
-          onClick={()=>setEmojiPickerOpen(true)}
+            onClick={() => setEmojiPickerOpen(true)}
           >
             <RiEmojiStickerLine className="text-2xl" />
           </button>
           <div className="absolute bottom-16 right-0" ref={emojiRef}>
             <EmojiPicker
-            theme="dark"
-            open={emojiPickerOpen}
-            onEmojiClick={handleAddEmoji}
-            autoFocusSearch={false}
+              theme="dark"
+              open={emojiPickerOpen}
+              onEmojiClick={handleAddEmoji}
+              autoFocusSearch={false}
             />
           </div>
         </div>
       </div>
-        <button className='bg-[#8417ff] rounded-md flex items-center justify-center p-5  focus:border-none hover:bg-[#741bda] focus:bg-[#741bda] focus:outline-none focus:text-white duration-300 transition-all'
+      <button className='bg-[#8417ff] rounded-md flex items-center justify-center p-5  focus:border-none hover:bg-[#741bda] focus:bg-[#741bda] focus:outline-none focus:text-white duration-300 transition-all'
         onClick={handleSendMessage}
-        >
-          <IoSend className="text-2xl" />
-        </button>
+      >
+        <IoSend className="text-2xl" />
+      </button>
     </div>
   )
 }
