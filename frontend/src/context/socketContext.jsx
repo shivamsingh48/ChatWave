@@ -11,16 +11,20 @@ export const useSocket = () => {
 
 export const SocketProvider = ({ children }) => {
     const socket = useRef()
-    const { selectedChatType, selectedChatData, addMessage, userInfo } = useAppStore()
+    const { selectedChatType, selectedChatData, addMessage, userInfo,addChannelInChannelList,addContactsInDMContacts } = useAppStore()
     // console.log("chat data",selectedChatData);
 
     const selectedChatDataRef = useRef(selectedChatData);
     const selectedChatTypeRef = useRef(selectedChatType);
+    const addChannelInChannelListRef=useRef(addChannelInChannelList);
+    const addContactsInDMContactsRef=useRef(addContactsInDMContacts)
 
     useEffect(() => {
         selectedChatDataRef.current = selectedChatData;
         selectedChatTypeRef.current = selectedChatType;
-    }, [selectedChatData, selectedChatType]);
+        addChannelInChannelListRef.current=addChannelInChannelList;
+        addContactsInDMContactsRef.current=addContactsInDMContacts
+    }, [selectedChatData, selectedChatType,addChannelInChannelList,addContactsInDMContacts]);
 
 
     useEffect(() => {
@@ -36,18 +40,28 @@ export const SocketProvider = ({ children }) => {
             })
 
             const handleRecieveMessage = (message) => {
-                console.log("Current Chat Data:", selectedChatDataRef);
                 if (
                     selectedChatTypeRef.current !== undefined &&
                     (selectedChatDataRef.current._id === message.sender._id ||
                         selectedChatDataRef.current._id === message.recipient._id)
                 ) {
-                    console.log(message);
                     addMessage(message);
                 }
+                addContactsInDMContactsRef.current(message)
+            }
+
+            const handleRecieveChannelMessage=(message)=>{
+                if (
+                    selectedChatTypeRef.current !== undefined &&
+                    (selectedChatDataRef.current._id === message.channelId )
+                ) {
+                    addMessage(message);
+                }
+                addChannelInChannelListRef.current(message)
             }
 
             socket.current.on("recieveMessage", handleRecieveMessage)
+            socket.current.on("receive-channel-message",handleRecieveChannelMessage)
 
             return () => {
                 socket.current.disconnect()

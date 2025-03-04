@@ -7,15 +7,11 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { animateDefaultOptions, getColor } from "@/lib/utils"
-import Lottie from "react-lottie"
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api.client";
-import { GET_ALL_CONTACTS_ROUTES, HOST, SEARCH_ROUTE } from "@/utils/contanst";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { CREATE_CHANNEL_ROUTE, GET_ALL_CONTACTS_ROUTES} from "@/utils/contanst";
 import { useAppStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import MultipleSelector from "@/components/ui/multipleselect";
@@ -23,9 +19,8 @@ import MultipleSelector from "@/components/ui/multipleselect";
 
 function CreateChannel() {
 
-    const {setSelectedChatType, setSelectedChatData } = useAppStore()
+    const {setSelectedChatType, setSelectedChatData,addChannel } = useAppStore()
     const [newChannelModal, setNewChannelModal] = useState(false)
-    const [searchedContacts, setSearchedContacts] = useState([])
     const [allContacts, setAllContacts] = useState([])
     const [selectedContacts, setSelectedContacts] = useState([])
     const [channelName, setChannelName] = useState("")
@@ -40,7 +35,24 @@ function CreateChannel() {
         getData()
     },[])
 
-    const createChannel=async()=>{}
+    const createChannel=async()=>{
+        try {
+            if(channelName.length>0 && selectedContacts.length>0){
+                const {data}=await apiClient.post(CREATE_CHANNEL_ROUTE,{
+                    name:channelName,
+                    members:selectedContacts.map((contact)=>contact.value)
+                },{withCredentials:true})
+                if(data.success){
+                    setChannelName("")
+                    setSelectedContacts([])
+                    setNewChannelModal(false)
+                    addChannel(data.contacts)
+                }
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     return (
         <div>
