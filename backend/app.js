@@ -8,11 +8,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app=express();
 
-app.use(cors({
-    origin:process.env.ORIGIN,
+const allowedOrigins = [
+    'http://localhost:5173', 
+    process.env.ORIGIN,
+  ];
+  
+  app.use(cors({
+    origin: function (origin, callback) {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true); 
+      } else {
+        callback(new Error('Not allowed by CORS')); 
+      }
+    },
     methods:["GET","POST","PATCH","DELETE","PUT"],
-    credentials:true,
-}))
+    credentials: true,
+  }));
 
 app.use("/upload", express.static(path.join(__dirname, "upload")));
 
