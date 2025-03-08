@@ -69,33 +69,33 @@ function CreateChannel() {
                 </Tooltip>
             </TooltipProvider>
             <Dialog open={newChannelModal} onOpenChange={setNewChannelModal}>
-                <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
+                <DialogContent className="bg-[#181920] border-none text-white w-[95vw] sm:w-[400px] max-w-[400px] h-[400px] max-h-[90vh] flex flex-col">
                     <DialogHeader>
-                        <DialogTitle>Please fill up the details for new channel</DialogTitle>
+                        <DialogTitle className="text-base sm:text-lg">Please fill up the details for new channel</DialogTitle>
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
                     <div>
                         <Input
                             placeholder="Channel Name"
-                            className="rounded-lg p-6 bg-[#2c2e3b] border-none"
+                            className="rounded-lg p-4 sm:p-6 bg-[#2c2e3b] border-none text-sm sm:text-base"
                             onChange={e => setChannelName(e.target.value)}
                             value={channelName}
                         />
                     </div>
                     <div>
                         <MultipleSelector
-                        className="rounded-lg bg-[#2c2e3b] border-none py-2 text-white"
+                        className="rounded-lg bg-[#2c2e3b] border-none py-2 text-white text-sm sm:text-base"
                         defaultOptions={allContacts}
                         placeholder="Search Contacts"
                         value={selectedContacts}
                         onChange={setSelectedContacts}
                         emptyIndicator={
-                            <p className="text-center text-lg leading-10 text-gray-600 ">No result found</p>
+                            <p className="text-center text-base sm:text-lg leading-10 text-gray-600">No result found</p>
                         }
                         />
                     </div>
                     <div>
-                        <Button className="w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
+                        <Button className="w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300 text-sm sm:text-base"
                         onClick={createChannel}>
                             Create Channel
                         </Button>

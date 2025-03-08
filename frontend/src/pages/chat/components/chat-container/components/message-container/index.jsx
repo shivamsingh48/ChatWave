@@ -218,29 +218,28 @@ function MessageContainer() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full">
+    <div className="flex-1 overflow-y-auto scrollbar-hidden p-2 sm:p-4 px-3 sm:px-8 w-full">
       {renderMessages()}
       <div ref={scrollRef} />
       {
         showImage && <div className="fixed z-[1000] top-0 left-0 h-[100vh] w-[100vw] flex items-center justify-center backdrop-blur-lg flex-col">
-          <div>
+          <div className="w-full sm:w-auto max-w-[95vw] sm:max-w-[80vw]">
             <img src={`${HOST}/${imageUrl}`}
-              className="h-[80vh] w-full bg-cover"
+              className="h-auto max-h-[80vh] w-full bg-cover object-contain"
             />
           </div>
-          <div className="flex gap-5 fixed top-0 mt-5">
-            <button className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+          <div className="flex gap-3 sm:gap-5 fixed top-0 mt-5">
+            <button className="bg-black/20 p-2 sm:p-3 text-xl sm:text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
               onClick={() => downloadFile(imageUrl)}>
               <IoMdArrowRoundDown />
             </button>
-            <button className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+            <button className="bg-black/20 p-2 sm:p-3 text-xl sm:text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
               onClick={() => {
                 setShowImage(false)
                 setImageUrl(null)
               }}>
               <IoCloseSharp />
             </button>
-
           </div>
         </div>
       }

@@ -64,27 +64,27 @@ function NewDM() {
                 </Tooltip>
             </TooltipProvider>
             <Dialog open={openNewContactModal} onOpenChange={setOpenNewContactModal}>
-                <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
+                <DialogContent className="bg-[#181920] border-none text-white w-[95vw] sm:w-[400px] max-w-[400px] h-[400px] max-h-[90vh] flex flex-col">
                     <DialogHeader>
-                        <DialogTitle>Please select a contact</DialogTitle>
+                        <DialogTitle className="text-base sm:text-lg">Please select a contact</DialogTitle>
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
                     <div>
                         <Input
                             placeholder="Search contacts"
-                            className="rounded-lg p-6 bg-[#2c2e3b] border-none"
+                            className="rounded-lg p-4 sm:p-6 bg-[#2c2e3b] border-none text-sm sm:text-base"
                             onChange={e => searchContacts(e.target.value)}
                         />
                     </div>
                     {searchedContacts.length > 0 && (
                         <ScrollArea className="h-[250px]">
-                            <div className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-3 sm:gap-5">
                                 {
                                     searchedContacts.map((contact) => (
-                                        <div key={contact._id} className="flex gap-3 items-center cursor-pointer"
+                                        <div key={contact._id} className="flex gap-2 sm:gap-3 items-center cursor-pointer"
                                             onClick={() => selectNewContact(contact)}>
-                                            <div className="w-12 h-12 relative">
-                                                <Avatar className="h-12 w-12 rounded-full overflow-hidden">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
+                                                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden">
                                                     {
                                                         contact.avatar ?
                                                             <AvatarImage
@@ -92,7 +92,7 @@ function NewDM() {
                                                                 alt="profile"
                                                                 className="object-cover w-full h-full bg-black"
                                                             /> :
-                                                            <div className={`uppercase h-12 w-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(contact.color)}`}>
+                                                            <div className={`uppercase h-10 w-10 sm:h-12 sm:w-12 text-base sm:text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(contact.color)}`}>
                                                                 {
                                                                     contact.firstName ?
                                                                         contact.firstName.split("").shift() :
@@ -102,12 +102,12 @@ function NewDM() {
                                                     }
                                                 </Avatar>
                                             </div>
-                                            <div className="flex flex-col ">
-                                                <span>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm sm:text-base">
                                                     {contact.firstName && contact.lastName ?
                                                         `${contact.firstName} ${contact.lastName}` : contact.email}
                                                 </span>
-                                                <span className="text-xs">{contact.email}</span>
+                                                <span className="text-xs opacity-70 truncate max-w-[180px] sm:max-w-none">{contact.email}</span>
                                             </div>
                                         </div>
                                     ))
@@ -116,14 +116,14 @@ function NewDM() {
                         </ScrollArea>
                     )}
                     {
-                        searchedContacts.length <= 0 && <div className='flex-1  mt-5 md:mt-0 md:flex flex-col justify-center items-center  duration-1000 transition-all'>
+                        searchedContacts.length <= 0 && <div className='flex-1 flex flex-col justify-center items-center duration-1000 transition-all'>
                             <Lottie
                                 isClickToPauseDisabled={true}
-                                height={100}
-                                width={100}
+                                height={80}
+                                width={80}
                                 options={animateDefaultOptions}
                             />
-                            <div className="text-opacity-80 text-white flex flex-col gap-5 items-center mt-5 lg:text-2xl text-xl transition-all duration-300 text-center">
+                            <div className="text-opacity-80 text-white flex flex-col gap-2 sm:gap-5 items-center mt-3 sm:mt-5 text-base sm:text-xl lg:text-2xl transition-all duration-300 text-center">
                                 <h3 className="poppins-medium">
                                     Hi <span className="text-purple-500">!</span> Search new
                                     <span className="text-purple-500"> Contact. </span>
