@@ -218,7 +218,7 @@ function MessageContainer() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-hidden p-2 sm:p-4 px-3 sm:px-8 w-full">
+    <div className="flex-1 overflow-y-auto pb-4 scrollbar-hidden p-2 sm:p-4 px-3 sm:px-8 w-full">
       {renderMessages()}
       <div ref={scrollRef} />
       {

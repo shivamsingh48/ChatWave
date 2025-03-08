@@ -24,11 +24,17 @@ function NewDM() {
     const {setSelectedChatType, setSelectedChatData } = useAppStore()
     const [openNewContactModal, setOpenNewContactModal] = useState(false)
     const [searchedContacts, setSearchedContacts] = useState([])
+    const [isLoginLoading, setIsLoginLoading] = useState(false)
+    const [isSignupLoading, setIsSignupLoading] = useState(false)
 
     const selectNewContact = (contact) => {
         setOpenNewContactModal(false)
         setSelectedChatType("contact")
-        setSelectedChatData(contact)
+        const contactData = {
+            ...contact,
+            color: contact.color || 'purple-500'
+        }
+        setSelectedChatData(contactData)
         setSearchedContacts([])
     }
 

@@ -40,8 +40,8 @@ const ContactList = ({ contacts, isChannel = false }) => {
                                                 ${
                                                     selectedChatData &&
                                                     selectedChatData._id===contact._id
-                                                    ?"bg-[ffffff22] border border-white/50"
-                                                    :getColor(contact.color)
+                                                    ? getColor(contact.color) + " border border-white/50"
+                                                    : getColor(contact.color)
                                                 }
                                                 uppercase h-10 w-10 text-lg border-[1px] flex items-center justify-center rounded-full 
                                                 `}>

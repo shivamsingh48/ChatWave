@@ -18,6 +18,8 @@ function Auth() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    const [isLoginLoading, setIsLoginLoading] = useState(false)
+    const [isSignupLoading, setIsSignupLoading] = useState(false)
     const {toast}=useToast();
 
     const validateLogin=()=>{
@@ -60,23 +62,67 @@ function Auth() {
 
     const handleLogin = async () => {
         if(validateLogin()){
-            const {data}=await apiClient.post(LOGIN_ROUTE,{email,password},{withCredentials:true})
-            if(data.success){
-                setUserInfo(data.user)
-                if(data.user.profileSetup){
-                    navigate('/chat')
+            try {
+                setIsLoginLoading(true);
+                const {data}=await apiClient.post(LOGIN_ROUTE,{email,password},{withCredentials:true})
+                if(data.success){
+                    setUserInfo(data.user)
+                    toast({
+                        title: "Login Successful",
+                        description: "Welcome back to ChatWave!",
+                        variant: "default"
+                    })
+                    if(data.user.profileSetup){
+                        navigate('/chat')
+                    }
+                    else navigate('/profile')
+                } else {
+                    toast({
+                        title: "Login Failed",
+                        description: data.message || "Invalid email or password",
+                        variant: "destructive"
+                    })
                 }
-                else navigate('/profile')
+            } catch (error) {
+                toast({
+                    title: "Login Error",
+                    description: error?.response?.data?.message || "Failed to login. Please check your credentials and try again.",
+                    variant: "destructive"
+                });
+            } finally {
+                setIsLoginLoading(false);
             }
         }
     }
 
     const handleSignUp = async () => {
         if(validateSignup()){
-            const {data}=await apiClient.post(SIGNUP_ROUTE,{email,password},{withCredentials:true})
-            if(data.success){
-                setUserInfo(data.user)
-                navigate('/profile')
+            try {
+                setIsSignupLoading(true);
+                const {data}=await apiClient.post(SIGNUP_ROUTE,{email,password},{withCredentials:true})
+                if(data.success){
+                    setUserInfo(data.user)
+                    toast({
+                        title: "Signup Successful",
+                        description: "Welcome to ChatWave! Let's set up your profile.",
+                        variant: "default"
+                    })
+                    navigate('/profile')
+                } else {
+                    toast({
+                        title: "Signup Failed",
+                        description: data.message || "Failed to create account",
+                        variant: "destructive"
+                    })
+                }
+            } catch (error) {
+                toast({
+                    title: "Signup Error",
+                    description: error?.response?.data?.message || "Failed to create account. This email may already be in use.",
+                    variant: "destructive"
+                });
+            } finally {
+                setIsSignupLoading(false);
             }
         }
     }
@@ -131,8 +177,17 @@ function Auth() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
                                 </div>
-                                <Button className="rounded-xl p-5 text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-purple-900/20 border-none outline-none" onClick={handleLogin}>
-                                    Login
+                                <Button className="rounded-xl p-5 text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-purple-900/20 border-none outline-none relative" 
+                                onClick={handleLogin} 
+                                disabled={isLoginLoading}>
+                                    {isLoginLoading ? (
+                                        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-blue-600">
+                                            <div className="h-5 w-5 relative">
+                                                <div className="animate-ping absolute h-full w-full rounded-full bg-white opacity-75"></div>
+                                                <div className="relative h-5 w-5 rounded-full bg-white opacity-90"></div>
+                                            </div>
+                                        </div>
+                                    ) : "Login"}
                                 </Button>
                             </TabsContent>
                             <TabsContent className="flex flex-col gap-4 mt-4" value="signup">
@@ -172,8 +227,18 @@ function Auth() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                 </div>
-                                <Button className="rounded-xl p-5 text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-purple-900/20 border-none outline-none" onClick={handleSignUp}>
-                                    Signup
+                                <Button className="rounded-xl p-5 text-sm font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-purple-900/20 border-none outline-none relative" 
+                                onClick={handleSignUp}
+                                disabled={isSignupLoading}>
+                                    {isSignupLoading ? (
+                                        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-blue-600">
+                                            <div className="flex space-x-2">
+                                                <div className="h-2 w-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                                <div className="h-2 w-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                                <div className="h-2 w-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.3s' }}></div>
+                                            </div>
+                                        </div>
+                                    ) : "Signup"}
                                 </Button>
                             </TabsContent>
                         </Tabs>
