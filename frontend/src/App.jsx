@@ -26,6 +26,17 @@ function App() {
   const {userInfo,setUserInfo}=useAppStore()
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
+  const [isAuthPage, setIsAuthPage] = useState(window.location.pathname.includes('/auth'))
+
+  useEffect(() => {
+    // Update isAuthPage when URL changes
+    const handleLocationChange = () => {
+      setIsAuthPage(window.location.pathname.includes('/auth'))
+    }
+    
+    window.addEventListener('popstate', handleLocationChange)
+    return () => window.removeEventListener('popstate', handleLocationChange)
+  }, [])
 
   useEffect(()=>{
 
@@ -37,7 +48,8 @@ function App() {
         }
         else{
           setUserInfo(undefined)
-          if (data.message) {
+          // Only show toast on non-auth pages
+          if (data.message && !isAuthPage) {
             toast({
               title: "Authentication Error",
               description: data.message,
@@ -48,11 +60,14 @@ function App() {
         
       } catch (error) {
         setUserInfo(undefined)
-        toast({
-          title: "Connection Error",
-          description: error?.response?.data?.message || "Failed to connect to server. Please try again later.",
-          variant: "destructive"
-        })
+        // Only show toast on non-auth pages
+        if (!isAuthPage) {
+          toast({
+            title: "Connection Error",
+            description: error?.response?.data?.message || "Failed to connect to server. Please try again later.",
+            variant: "destructive"
+          })
+        }
       } finally{
         setLoading(false)
       }
@@ -65,18 +80,21 @@ function App() {
       setLoading(false);
     }
 
-  },[userInfo,setUserInfo, toast])
+  },[userInfo,setUserInfo, toast, isAuthPage])
 
   // Global error handler for API requests
   useEffect(() => {
     const requestInterceptor = apiClient.interceptors.request.use(
       config => config,
       error => {
-        toast({
-          title: "Request Error",
-          description: "Failed to send request to server",
-          variant: "destructive"
-        })
+        // Only show toast on non-auth pages
+        if (!isAuthPage) {
+          toast({
+            title: "Request Error",
+            description: "Failed to send request to server",
+            variant: "destructive"
+          })
+        }
         return Promise.reject(error)
       }
     )
@@ -84,6 +102,11 @@ function App() {
     const responseInterceptor = apiClient.interceptors.response.use(
       response => response,
       error => {
+        // Don't show errors on auth page
+        if (isAuthPage) {
+          return Promise.reject(error)
+        }
+        
         if (error.response) {
           // Server responded with an error status code
           if (error.response.status === 401) {
@@ -136,7 +159,7 @@ function App() {
       apiClient.interceptors.request.eject(requestInterceptor)
       apiClient.interceptors.response.eject(responseInterceptor)
     }
-  }, [toast, setUserInfo])
+  }, [toast, setUserInfo, isAuthPage])
 
   if(loading) return (
     <div className="h-[100vh] w-[100vw] flex items-center justify-center bg-gradient-to-br from-[#121218] to-[#1c1d25]">

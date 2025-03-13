@@ -18,8 +18,17 @@ export const createChatSlice=(set,get)=>({
     setSelectedChatMessages:(selectedChatMessages)=>set({selectedChatMessages}),
     setDirectMessagesContacts:(directMessagesContacts)=>set({directMessagesContacts}),
     addChannel:(channel)=>{
-        const channels=get().channels
-        set({channels:[channel,...channels]})
+        if (!channel || !channel._id) {
+            console.error("Invalid channel data:", channel);
+            return;
+        }
+        
+        const channels = get().channels || [];
+        
+        const exists = channels.some(c => c._id === channel._id);
+        if (!exists) {
+            set({channels:[channel, ...channels]});
+        }
     },
     closeChat:()=>set({selectedChatData:undefined,selectedChatType:undefined,selectedChatMessages:[]}),
     addMessage:(message)=>{
